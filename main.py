@@ -185,17 +185,6 @@ if __name__ == "__main__":
                                             with_labels=opt.labels,
                                             normalize=opt.normalize,
                                             n_pca=opt.pca)
-
-        # compute matrix of RFA similarities
-        
-        # if opt.batchsize < 0:
-        #     opt.batchsize = min(512, int(len(RFA)/10))
-        #     print('batchsize = ', opt.batchsize)
-        #     # if opt.dset == "Moignard2015":
-        #     #     opt.batchsize = 1500
-        # opt.lr = opt.batchsize / 16 * opt.lr
-
-
         titlename, fout = create_output_name(opt)
 
         embeddings, titlename = compute_poincare_maps(features, labels, fout,
@@ -205,72 +194,12 @@ if __name__ == "__main__":
                         color_dict=color_dict, debugplot=opt.debugplot,
                         batchsize=opt.batchsize, lr=opt.lr, burnin=opt.burnin, lrm=opt.lrm, 
                         earlystop=opt.earlystop, cuda=opt.cuda)
-
-
-
-            # PCA of RFA baseline
-            # pca_baseline = PCA(n_components=2).fit_transform(RFA)
-            # plot2D(pca_baseline.T,
-            #        labels,
-            #        fout + '_PCARFA',
-            #        'PCA of RFA\n' + titlename)
-
-         
-            # build the indexed RFA dataset 
-        # indices = torch.arange(len(RFA))
-        # if opt.cuda:
-        #     indices = indices.cuda()
-        #     RFA = RFA.cuda()
-
-        # dataset = TensorDataset(indices, RFA)
-
-        # # instantiate our Embedding predictor
-        # predictor = PoincareEmbedding(len(dataset),
-        #                                                             opt.dim,
-        #                                                             dist=PoincareDistance,
-        #                                                             max_norm=1,
-        #                                                             Qdist=opt.distr, 
-        #                                                             lossfn = opt.lossfn,
-        #                                                             gamma=opt.gamma,
-        #                                                             cuda=opt.cuda)
-
-        # # instantiate the Riemannian optimizer 
-        # t_start = timeit.default_timer()
-        # optimizer = RiemannianSGD(predictor.parameters(), lr=opt.lr)
-
-        # # train predictor
-        # print('Starting training...')
-        # embeddings, loss, epoch = train(predictor,
-        #                                                  dataset,
-        #                                                  optimizer,
-        #                                                  opt,
-        #                                                  fout=fout,
-        #                                                  labels=labels,
-        #                                                  earlystop=opt.earlystop,
-        #                                                  color_dict=color_dict)
-
         np.savetxt(fout + '.csv', embeddings, delimiter=",")
-
-        # log_file = f'results/{opt.logfile}.csv'     
-        # df_stats = pd.DataFrame(np.array([[opt.dset, opt.pca, opt.knn, opt.sigma, opt.gamma, opt.distlocal, 
-        #     loss, int(t), int(t/60), opt.seed, opt.cuda, opt.earlystop, epoch]]), 
-        #     columns = ['dataset', 'pca', 'knn', 'sigma', 'gamma', 'distance',
-        #     'loss', 'time (sec)', 'time (min)', 'seed', 'cuda', 'earlystop', 'max epochs'])
-
-        # if os.path.isfile(log_file):
-        #     df_logs = pd.read_csv(log_file)
-        #     df_stats = pd.concat([df_logs, df_stats])
-
-        # df_stats.to_csv(f'results/{opt.logfile}.csv', index=False, sep=',')
-
-
         color_dict = plotPoincareDisc(embeddings.T,
                                                  labels,
                                                  fout,
                                                  titlename,
                                                  color_dict=color_dict)
-
-        # rotation
         root_hat = poincare_root(opt.root, labels, features)   
         print('Root:', root_hat)
         if root_hat != -1:
